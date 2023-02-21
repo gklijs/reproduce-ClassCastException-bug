@@ -3,7 +3,9 @@ package com.example.reproduceclasscastexceptionbug.aggregate;
 import com.example.reproduceclasscastexceptionbug.commands.CreateCommand;
 import com.example.reproduceclasscastexceptionbug.commands.SomeCommand;
 import com.example.reproduceclasscastexceptionbug.events.CreatedEvent;
+import com.example.reproduceclasscastexceptionbug.events.SomeDomainEvent;
 import com.example.reproduceclasscastexceptionbug.events.SomeEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.interceptors.ExceptionHandler;
@@ -13,6 +15,7 @@ import org.axonframework.spring.stereotype.Aggregate;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
 @Aggregate
+@Slf4j
 public class MyAggregate {
 
     @AggregateIdentifier
@@ -31,11 +34,7 @@ public class MyAggregate {
     @EventSourcingHandler
     public void on(CreatedEvent event) {
         this.id = event.getId();
-    }
-
-    @EventSourcingHandler
-    public void on(SomeEvent event) {
-        someEventHappened = true;
+        this.someEventHappened = false;
     }
 
     @ExceptionHandler
@@ -45,6 +44,12 @@ public class MyAggregate {
 
     @CommandHandler
     public void handle(SomeCommand command) {
-        // some logic
+        apply(new SomeDomainEvent(command.getId()));
+    }
+
+    @EventSourcingHandler
+    public void on(SomeDomainEvent event) {
+        this.someEventHappened = true;
+        log.info("Some domain event happened");
     }
 }

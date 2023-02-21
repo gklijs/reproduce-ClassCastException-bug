@@ -6,7 +6,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 @RequiredArgsConstructor
 @Value
-public class SomeEvent {
-
+public class SomeDomainEvent {
+    @TargetAggregateIdentifier
     String id;
 }
